@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1 class="header-title">📝 Markdown Viewer</h1>
+                <p class="header-subtitle">Share your markdown documents easily and securely</p>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <form id="documentForm">
+                <div class="form-group">
+                    <label for="content">Markdown Content</label>
+                    <textarea id="content" name="content" placeholder="# Welcome to Markdown Viewer
+
+Start typing your markdown here...
+
+## Features
+- Password protection (optional)
+- Expiration dates
+- Mermaid diagram support
+- Syntax highlighting
+
+```javascript
+console.log('Hello, world!');
+```" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="customId">Custom ID (Optional)</label>
+                    <input type="text" id="customId" name="customId" 
+                           placeholder="Leave empty to auto-generate (e.g: my-document-id)"
+                           pattern="[a-zA-Z0-9\-_]+"
+                           title="Only letters, numbers, hyphens, and underscores are allowed">
+                    <small class="form-hint">Create a custom URL ID for your document. If empty, a random ID will be generated.</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password (Optional)</label>
+                        <input type="password" id="password" name="password"
+                            placeholder="Leave empty for public document">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiration">Expires</label>
+                        <select id="expiration" name="expiration">
+                            <option value="never">Never</option>
+                            <option value="1h">1 Hour</option>
+                            <option value="1d" selected>1 Day</option>
+                            <option value="1w">1 Week</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="saveBtn">
+                        <span class="btn-text">📄 Save Document</span>
+                        <span class="btn-loading" style="display: none;">⏳ Saving...</span>
+                    </button>
+                    <button type="button" id="clearBtn">🗑️ Clear</button>
+                </div>
+            </form>
+        </main>
+
+        <footer>
+            <p>Powered by <a href="https://brew.monster">Brew Monster</a>, secured by your choice</p>
+        </footer>
+    </div>
+
+    <script src="theme.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
