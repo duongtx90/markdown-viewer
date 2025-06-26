@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Document - Markdown Viewer</title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" id="prism-light">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css" id="prism-dark" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-light.min.css" id="prism-light" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-dark.min.css" id="prism-dark" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.0/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
@@ -17,7 +17,33 @@
 </head>
 
 <body>
-    <div class="container">
+    <!-- Table of Contents Sidebar -->
+    <div id="tocSidebar" class="toc-sidebar">
+        <div class="toc-header">
+            <h3>📋 Table of Contents</h3>
+            <button id="tocCloseBtn" class="toc-close-btn" aria-label="Close table of contents">&times;</button>
+        </div>
+        <div class="toc-content" id="tocContent">
+            <p class="toc-empty">No headings found</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons">
+        <button id="fullWidthToggleBtn" class="float-btn" aria-label="Toggle full width" title="Toggle Full Width">
+            ↔️
+        </button>
+    </div>
+
+    <!-- Backdrop for mobile TOC -->
+    <div id="tocBackdrop" class="toc-backdrop"></div>
+
+    <!-- Top left TOC toggle button -->
+    <button id="tocToggleTopLeft" class="toc-toggle-top-left" aria-label="Toggle table of contents" title="Toggle Table of Contents (T)" style="display: none;">
+        ☰
+    </button>
+
+    <div class="container" id="mainContainer">
         <header>
             <h1>📝 Markdown Viewer</h1>
             <div class="header-actions">
@@ -67,6 +93,11 @@
                 <div class="document-meta">
                     <span id="createdAt"></span>
                     <span id="expiresAt"></span>
+                </div>
+                <div class="document-actions">
+                    <button id="tocButtonTop" class="toc-button-top" style="display: none;">
+                        📋 Table of Contents
+                    </button>
                 </div>
                 <div id="content" class="markdown-content"></div>
             </div>

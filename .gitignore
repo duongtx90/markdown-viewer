@@ -1,5 +1,5 @@
 .env
 node_modules
-md-files
+md-files/
 *.sqlite
 *.sh

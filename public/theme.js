@@ -70,30 +70,60 @@ class ThemeManager {
     updateMermaidTheme(theme) {
         if (typeof mermaid !== 'undefined') {
             const mermaidTheme = theme === 'dark' ? 'dark' : 'default';
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: mermaidTheme,
-                securityLevel: 'loose',
-                fontFamily: 'inherit'
-            });
+            console.log('Applying Mermaid theme:', mermaidTheme, 'for', theme, 'mode');
+            
+            if (theme === 'dark') {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'dark',
+                    securityLevel: 'loose',
+                    fontFamily: 'inherit'
+                });
+            } else {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'default',
+                    securityLevel: 'loose',
+                    fontFamily: 'inherit'
+                });
+            }
             
             // Re-render existing mermaid diagrams if any
             const mermaidElements = document.querySelectorAll('.mermaid');
             if (mermaidElements.length > 0) {
-                // Store original content and re-render
+                console.log('Re-rendering', mermaidElements.length, 'Mermaid diagrams for theme:', theme);
+                
+                // Clear existing SVG content and restore original text
                 mermaidElements.forEach((element, index) => {
-                    const originalContent = element.getAttribute('data-original-content') || element.textContent;
+                    // Get original content from various possible sources
+                    let originalContent = element.getAttribute('data-original-content') || 
+                                        element.getAttribute('data-processed') || 
+                                        element.textContent;
+                    
+                    // If the element contains SVG, extract the original from data attribute
+                    if (element.querySelector('svg')) {
+                        // Store the original content if not already stored
+                        if (!element.getAttribute('data-original-content') && element.getAttribute('data-original-text')) {
+                            originalContent = element.getAttribute('data-original-text');
+                        }
+                    }
+                    
+                    // Store original content and clear the element
                     element.setAttribute('data-original-content', originalContent);
                     element.innerHTML = originalContent;
-                    element.id = `mermaid-${Date.now()}-${index}`;
+                    element.classList.remove('mermaid-rendered');
+                    element.id = `mermaid-theme-${Date.now()}-${index}`;
                 });
                 
-                // Trigger re-rendering
+                // Force a complete re-render with new theme
                 setTimeout(() => {
                     if (window.renderMermaidDiagrams) {
                         window.renderMermaidDiagrams();
+                    } else {
+                        // Fallback: use mermaid.init directly
+                        mermaid.init(undefined, mermaidElements);
                     }
-                }, 100);
+                }, 200);
             }
         }
     }

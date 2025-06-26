@@ -13,9 +13,21 @@ const forkBtn = document.getElementById('forkBtn');
 const copyLinkBtn = document.getElementById('copyLinkBtn');
 const shareBtn = document.getElementById('shareBtn');
 
+// TOC and floating button elements
+const tocSidebar = document.getElementById('tocSidebar');
+const tocContent = document.getElementById('tocContent');
+const tocCloseBtn = document.getElementById('tocCloseBtn');
+const fullWidthToggleBtn = document.getElementById('fullWidthToggleBtn');
+const tocBackdrop = document.getElementById('tocBackdrop');
+const mainContainer = document.getElementById('mainContainer');
+const tocButtonTop = document.getElementById('tocButtonTop');
+const tocToggleTopLeft = document.getElementById('tocToggleTopLeft');
+
 // State
 let currentDocumentId = null;
 let currentDocumentContent = null;
+let isTocOpen = false;
+let isFullWidth = false;
 
 // Utility function for session storage operations
 function setSessionStorageData(key, value) {
@@ -213,6 +225,9 @@ async function renderDocument(data) {
     copyLinkBtn.style.display = 'inline-flex';
     shareBtn.style.display = 'inline-flex';
 
+    // Generate table of contents
+    generateTableOfContents();
+
     // Show document container
     showDocument();
 }
@@ -259,6 +274,11 @@ async function renderMermaidDiagrams() {
         try {
             const diagramCode = element.textContent.trim();
             console.log(`Preparing diagram ${index + 1}:`, diagramCode.substring(0, 50) + '...');
+
+            // Store original content for theme switching
+            if (!element.getAttribute('data-original-content')) {
+                element.setAttribute('data-original-content', diagramCode);
+            }
 
             // Add unique ID if not already present
             if (!element.id) {
@@ -543,9 +563,13 @@ function showDocument() {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function (e) {
-    // Escape to go back to main page
+    // Escape to go back to main page or close TOC
     if (e.key === 'Escape') {
-        window.location.href = '/';
+        if (isTocOpen) {
+            closeToc();
+        } else {
+            window.location.href = '/';
+        }
     }
 
     // F to fork document
@@ -563,4 +587,203 @@ document.addEventListener('keydown', function (e) {
         e.preventDefault(); // Prevent browser save dialog
         shareBtn.click();
     }
-}); 
+
+    // T to toggle table of contents
+    if (e.key === 't' && currentDocumentContent && !e.ctrlKey && !e.metaKey) {
+        toggleToc();
+    }
+
+    // W to toggle full width
+    if (e.key === 'w' && currentDocumentContent && !e.ctrlKey && !e.metaKey) {
+        toggleFullWidth();
+    }
+});
+
+// Table of Contents functions
+function generateTableOfContents() {
+    const headings = contentDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    if (headings.length === 0) {
+        tocContent.innerHTML = '<p class="toc-empty">No headings found</p>';
+        tocButtonTop.style.display = 'none';
+        return;
+    }
+    
+    // Show the TOC buttons
+    tocButtonTop.style.display = 'inline-flex';
+    tocToggleTopLeft.style.display = 'flex';
+
+    let tocHtml = '';
+    headings.forEach((heading, index) => {
+        const headingText = heading.textContent.trim();
+        const headingLevel = heading.tagName.toLowerCase();
+        const headingId = `heading-${index}`;
+        
+        // Add ID to heading for navigation
+        heading.id = headingId;
+        
+        // Create TOC item
+        tocHtml += `<div class="toc-item ${headingLevel}" data-target="${headingId}">${headingText}</div>`;
+    });
+    
+    tocContent.innerHTML = tocHtml;
+    
+    // Add click listeners to TOC items
+    const tocItems = tocContent.querySelectorAll('.toc-item');
+    tocItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                // Remove active class from all items
+                tocItems.forEach(tocItem => tocItem.classList.remove('active'));
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Smooth scroll to target
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Close TOC on mobile after navigation
+                if (window.innerWidth <= 768) {
+                    closeToc();
+                }
+            }
+        });
+    });
+    
+    // Set up scroll spy for active heading highlighting
+    setupScrollSpy();
+}
+
+function setupScrollSpy() {
+    const headings = contentDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const tocItems = tocContent.querySelectorAll('.toc-item');
+    
+    if (headings.length === 0 || tocItems.length === 0) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const headingId = entry.target.id;
+                const correspondingTocItem = tocContent.querySelector(`[data-target="${headingId}"]`);
+                
+                if (correspondingTocItem) {
+                    // Remove active class from all items
+                    tocItems.forEach(item => item.classList.remove('active'));
+                    // Add active class to current item
+                    correspondingTocItem.classList.add('active');
+                }
+            }
+        });
+    }, {
+        rootMargin: '-20% 0px -80% 0px',
+        threshold: 0
+    });
+    
+    headings.forEach(heading => {
+        observer.observe(heading);
+    });
+}
+
+function toggleToc() {
+    if (isTocOpen) {
+        closeToc();
+    } else {
+        openToc();
+    }
+}
+
+function openToc() {
+    isTocOpen = true;
+    tocSidebar.classList.add('open');
+    document.body.classList.add('toc-open');
+    tocToggleTopLeft.style.display = 'none'; // Hide hamburger button when TOC is open
+    
+    // Show backdrop on mobile
+    if (window.innerWidth <= 768) {
+        tocBackdrop.classList.add('show');
+    }
+}
+
+function closeToc() {
+    isTocOpen = false;
+    tocSidebar.classList.remove('open');
+    document.body.classList.remove('toc-open');
+    tocToggleTopLeft.style.display = 'flex'; // Show hamburger button when TOC is closed
+    tocBackdrop.classList.remove('show');
+}
+
+function toggleFullWidth() {
+    if (isFullWidth) {
+        exitFullWidth();
+    } else {
+        enterFullWidth();
+    }
+}
+
+function enterFullWidth() {
+    isFullWidth = true;
+    document.body.classList.add('full-width');
+    fullWidthToggleBtn.textContent = '↕️';
+    fullWidthToggleBtn.title = 'Exit Full Width';
+}
+
+function exitFullWidth() {
+    isFullWidth = false;
+    document.body.classList.remove('full-width');
+    fullWidthToggleBtn.textContent = '↔️';
+    fullWidthToggleBtn.title = 'Toggle Full Width';
+}
+
+// Event listeners for floating buttons and TOC
+fullWidthToggleBtn.addEventListener('click', toggleFullWidth);
+tocCloseBtn.addEventListener('click', closeToc);
+tocBackdrop.addEventListener('click', closeToc);
+tocButtonTop.addEventListener('click', toggleToc);
+tocToggleTopLeft.addEventListener('click', toggleToc);
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768 && isTocOpen) {
+        tocBackdrop.classList.remove('show');
+    } else if (window.innerWidth <= 768 && isTocOpen) {
+        tocBackdrop.classList.add('show');
+    }
+});
+
+// Debug function to manually refresh Mermaid diagrams
+window.refreshMermaidDiagrams = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    console.log('Manually refreshing Mermaid diagrams for theme:', currentTheme);
+    
+    // Clear all rendered diagrams
+    const mermaidElements = document.querySelectorAll('.mermaid');
+    mermaidElements.forEach((element, index) => {
+        const originalContent = element.getAttribute('data-original-content');
+        if (originalContent) {
+            element.innerHTML = originalContent;
+            element.removeAttribute('data-processed');
+            element.id = `mermaid-manual-${Date.now()}-${index}`;
+        }
+    });
+    
+    // Re-initialize Mermaid with current theme
+    if (typeof mermaid !== 'undefined') {
+        const mermaidTheme = currentTheme === 'dark' ? 'dark' : 'default';
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: "forest",
+            securityLevel: 'loose',
+            fontFamily: 'inherit'
+        });
+        
+        // Re-render all diagrams
+        setTimeout(() => {
+            mermaid.init(undefined, mermaidElements);
+        }, 100);
+    }
+};
