@@ -17,6 +17,35 @@ const shareBtn = document.getElementById('shareBtn');
 let currentDocumentId = null;
 let currentDocumentContent = null;
 
+// Utility function for session storage operations
+function setSessionStorageData(key, value) {
+    try {
+        sessionStorage.setItem(key, value);
+        return true;
+    } catch (error) {
+        console.error('Failed to set session storage:', error);
+        // Fallback to URL parameter for browsers with session storage disabled
+        return false;
+    }
+}
+
+function getSessionStorageData(key) {
+    try {
+        return sessionStorage.getItem(key);
+    } catch (error) {
+        console.error('Failed to get session storage:', error);
+        return null;
+    }
+}
+
+function removeSessionStorageData(key) {
+    try {
+        sessionStorage.removeItem(key);
+    } catch (error) {
+        console.error('Failed to remove session storage:', error);
+    }
+}
+
 // Extract document ID from URL - supports both /v/:document-id and ?id=document-id formats
 function getDocumentIdFromUrl() {
     // First, try to get from path for /v/:document-id format
@@ -342,11 +371,41 @@ passwordForm.addEventListener('submit', function (e) {
 });
 
 // Handle fork button
+// Solution for 414 Request-URI Too Large error:
+// Instead of passing large content via URL parameters (which can exceed 8KB limit),
+// we now use browser session storage as the primary method for forking documents.
+// This allows forking of documents of any size without URL length limitations.
+// 
+// Fallback mechanism:
+// If session storage is not available (disabled/unsupported), we fall back to 
+// URL parameters with intelligent content truncation to prevent 414 errors.
 forkBtn.addEventListener('click', function () {
     if (currentDocumentContent) {
-        // Redirect to main page with content pre-filled
-        const encodedContent = encodeURIComponent(currentDocumentContent);
-        window.location.href = `/?content=${encodedContent}`;
+        // Try to store content in session storage first
+        const sessionSuccess = setSessionStorageData('forkContent', currentDocumentContent);
+        
+        if (sessionSuccess) {
+            // Session storage worked, use the new method
+            setSessionStorageData('isFork', 'true');
+            window.location.href = '/';
+        } else {
+            // Session storage failed, use URL parameter with truncation to prevent 414 error
+            console.warn('Session storage not available, falling back to URL parameter');
+            const maxUrlLength = 8000; // Conservative limit to prevent 414 errors
+            const baseUrl = '/?content=';
+            const availableLength = maxUrlLength - baseUrl.length - 100; // Buffer for encoding
+            
+            let contentToEncode = currentDocumentContent;
+            if (encodeURIComponent(contentToEncode).length > availableLength) {
+                // Truncate content and add notice
+                const maxContentLength = Math.floor(availableLength / 3); // Conservative estimate for encoding
+                contentToEncode = currentDocumentContent.substring(0, maxContentLength) + 
+                    '\n\n<!-- Content was truncated to prevent URL length limit. Please use a browser with session storage support for full content forking. -->';
+            }
+            
+            const encodedContent = encodeURIComponent(contentToEncode);
+            window.location.href = `/?content=${encodedContent}`;
+        }
     }
 });
 

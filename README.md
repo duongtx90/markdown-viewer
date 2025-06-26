@@ -1,4 +1,4 @@
-# Markdown Pastebin
+# Markdown Viewer
 
 A simple and powerful markdown sharing service that allows you to create, share, and view markdown documents with optional password protection and expiration dates.
 

@@ -9,6 +9,34 @@ const clearBtn = document.getElementById('clearBtn');
 const btnText = document.querySelector('.btn-text');
 const btnLoading = document.querySelector('.btn-loading');
 
+// Utility functions for session storage operations
+function setSessionStorageData(key, value) {
+    try {
+        sessionStorage.setItem(key, value);
+        return true;
+    } catch (error) {
+        console.error('Failed to set session storage:', error);
+        return false;
+    }
+}
+
+function getSessionStorageData(key) {
+    try {
+        return sessionStorage.getItem(key);
+    } catch (error) {
+        console.error('Failed to get session storage:', error);
+        return null;
+    }
+}
+
+function removeSessionStorageData(key) {
+    try {
+        sessionStorage.removeItem(key);
+    } catch (error) {
+        console.error('Failed to remove session storage:', error);
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     // Check if we're editing an existing document (fork functionality)
@@ -16,9 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const editId = urlParams.get('edit');
     const content = urlParams.get('content');
     
-    if (content) {
-        // Pre-fill textarea with content from URL (for forking)
+    // Check for fork content in session storage first (new method)
+    const forkContent = getSessionStorageData('forkContent');
+    const isFork = getSessionStorageData('isFork') === 'true';
+    
+    if (isFork && forkContent) {
+        // Pre-fill textarea with content from session storage (for forking)
+        contentTextarea.value = forkContent;
+        // Clear session storage after use
+        removeSessionStorageData('forkContent');
+        removeSessionStorageData('isFork');
+        autoResizeTextarea();
+    } else if (content) {
+        // Pre-fill textarea with content from URL (for backward compatibility)
         contentTextarea.value = decodeURIComponent(content);
+        autoResizeTextarea();
     } else if (editId) {
         // Load existing document for editing
         loadDocumentForEdit(editId);
@@ -195,8 +235,10 @@ contentTextarea.addEventListener('input', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const hasUrlContent = urlParams.get('content') || urlParams.get('edit');
+    const hasForkContent = getSessionStorageData('forkContent') && getSessionStorageData('isFork') === 'true';
     
-    if (!hasUrlContent && !contentTextarea.value) {
+    // Don't load draft if we have fork content, URL content, or are editing
+    if (!hasForkContent && !hasUrlContent && !contentTextarea.value) {
         const draft = localStorage.getItem('markdown-pastebin-draft');
         if (draft) {
             const loadDraft = confirm('Found an unsaved draft. Would you like to restore it?');
