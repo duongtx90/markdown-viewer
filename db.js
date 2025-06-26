@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 // Initialize Sequelize with SQLite
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: 'database.sqlite',
+    storage: './data/database.sqlite',
     logging: false // Set to console.log to see SQL queries
 });
 

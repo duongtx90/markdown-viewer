@@ -25,7 +25,7 @@ function generateFilename() {
 
 // Helper function to get the full file path
 function getFilePath(filename) {
-    return path.join(__dirname, 'md-files', filename);
+    return path.join(__dirname, 'data', 'md-files', filename);
 }
 
 // Helper function to parse expiration time
