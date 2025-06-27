@@ -25,6 +25,7 @@
     --prism-bg: #f5f2f0;
     --prism-text: #333;
     --toc-width: 280px;
+    --btn-bg: #4d4d4d37;
 }
 
 [data-theme="dark"] {
@@ -46,6 +47,7 @@
     --shadow-heavy: rgba(0,0,0,0.7);
     --prism-bg: #2d2d2d;
     --prism-text: #f8f8f2;
+    --btn-bg: #ebebebc8;
 }
 
 body {
@@ -106,6 +108,7 @@ main {
     box-shadow: 0 20px 40px var(--shadow-light);
     margin-bottom: 20px;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--shadow-light);
 }
 
 /* Form styles */
@@ -209,11 +212,12 @@ button[type="submit"]:hover, .primary-btn:hover {
 
 /* Theme toggle button */
 .theme-toggle {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    background-color: transparent;
+    /* background: var(--bg-secondary); */
+    /* border: 2px solid var(--border-color); */
+    /* border-radius: 50%; */
+    /* width: 44px; */
+    /* height: 44px; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -317,18 +321,33 @@ button:disabled {
 }
 
 /* Document content styles */
+.document-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 10px;
+}
 .document-meta {
-    margin-bottom: 30px;
-    padding: 15px;
-    border-radius: 8px;
     font-size: 14px;
-    color: #666;
+    color: var(--text-tertiary);
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 10px;
 }
-
+.document-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.action-icon {
+    width: 20px;
+    height: 20px;
+}
 .markdown-content {
     max-width: none;
     line-height: 1.7;
@@ -555,7 +574,7 @@ button:disabled {
 /* Footer */
 footer {
     text-align: center;
-    color: white;
+    color: var(--text-primary);
     opacity: 0.8;
     font-size: 14px;
 }
@@ -784,9 +803,8 @@ footer a {
 
 /* Document Actions */
 .document-actions {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 10px;
+    padding-bottom: 10px;
     display: flex;
     justify-content: flex-start;
 }
@@ -830,7 +848,7 @@ footer a {
     height: 56px;
     border-radius: 50%;
     border: none;
-    background: var(--gradient-primary);
+    background: var(--btn-bg);  
     color: white;
     font-size: 1.2rem;
     cursor: pointer;

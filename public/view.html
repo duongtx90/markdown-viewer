@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Document - Markdown Viewer</title>
     <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-light.min.css" id="prism-light" disabled>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-dark.min.css" id="prism-dark" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-light.min.css"
+        id="prism-light" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism-themes/1.9.0/prism-one-dark.min.css"
+        id="prism-dark" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.0/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.min.js"></script>
@@ -39,7 +41,8 @@
     <div id="tocBackdrop" class="toc-backdrop"></div>
 
     <!-- Top left TOC toggle button -->
-    <button id="tocToggleTopLeft" class="toc-toggle-top-left" aria-label="Toggle table of contents" title="Toggle Table of Contents (T)" style="display: none;">
+    <button id="tocToggleTopLeft" class="toc-toggle-top-left" aria-label="Toggle table of contents"
+        title="Toggle Table of Contents (T)" style="display: none;">
         ☰
     </button>
 
@@ -50,13 +53,6 @@
                 <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
                     <span class="theme-icon">🌙</span>
                 </button>
-                <button id="copyLinkBtn" class="secondary-btn" style="display: none;" aria-label="Copy link">
-                    🔗 Copy Link
-                </button>
-                <button id="shareBtn" class="secondary-btn" style="display: none;" aria-label="Share document">
-                    📤 Share
-                </button>
-                <button id="forkBtn" class="secondary-btn" style="display: none;">✂️ Fork this document</button>
                 <a href="/" class="secondary-btn">✨ Create new</a>
             </div>
         </header>
@@ -90,15 +86,31 @@
 
             <!-- Document content -->
             <div id="documentContainer" style="display: none;">
-                <div class="document-meta">
-                    <span id="createdAt"></span>
-                    <span id="expiresAt"></span>
-                </div>
-                <div class="document-actions">
+                <div class="document-header">
                     <button id="tocButtonTop" class="toc-button-top" style="display: none;">
                         📋 Table of Contents
                     </button>
-                </div>
+                 
+                    <div class="document-actions">
+
+                        <button id="copyLinkBtn" class="secondary-btn" style="display: none;" aria-label="Copy link"
+                            title="Copy Link">
+                            <img src="/assets/chain.png" alt="Copy Link" class="action-icon">
+                        </button>
+                        <button id="shareBtn" class="secondary-btn" style="display: none;" aria-label="Share document"
+                            title="Share">
+                            <img src="/assets/share.png" alt="Share" class="action-icon">
+                        </button>
+                        <button id="forkBtn" class="secondary-btn" style="display: none;" aria-label="Copy"
+                            title="Fork Document">
+                            <img src="/assets/copy.png" alt="Copy" class="action-icon">
+                        </button>
+                    </div>
+                </div>        
+                <div class="document-meta">
+                    <span id="createdAt"></span>
+                    <span id="expiresAt"></span>
+                </div>    
                 <div id="content" class="markdown-content"></div>
             </div>
         </main>
